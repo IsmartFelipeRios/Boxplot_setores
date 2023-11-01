@@ -4,3 +4,4 @@ plotly-express
 openpyxl
 pybase64
 Python-IO
+XlsxWriter
