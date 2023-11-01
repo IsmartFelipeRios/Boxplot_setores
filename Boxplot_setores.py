@@ -7,7 +7,7 @@ import io
 
 # Função para importar a base de dados
 def importar_base():
-    bd = pd.read_excel(r'C:\ISMART\OneDrive - Ismart - Instituto Social M.A.R.T\Documentos\Python Scripts\Boxplot_comparativo_entre_os_3_setores.xlsx')
+    bd = pd.read_excel(r'Boxplot_comparativo_entre_os_3_setores.xlsx')
     return bd
 
 # Função para baixar o DataFrame em formato CSV
