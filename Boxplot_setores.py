@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import base64
 import io
+import xlsxwriter
 
 def check_password():
     """Returns `True` if the user had a correct password."""
