@@ -80,7 +80,7 @@ if check_password():
 
     # Filtros selecionados
     aluno_meta = st.sidebar.radio('Selecione a opção de meta:', ['Estão na meta', 'Não estão na meta', 'Ambas'], index=2)
-    ano_termino = st.sidebar.radio('Selecione o ano de término:', ['Alunos que estão no último ano', 'Alunos que estão no pnúltimo ano', 'Todos os anos'], index=2)
+    ano_termino = st.sidebar.radio('Selecione o ano de término:', ['Alunos que estão no último ano', 'Alunos que estão no penúltimo ano', 'Todos os anos'], index=2)
     oportunidade = st.sidebar.multiselect('Selecione a opção de status da oportunidade:', bd['Status meta'].unique(), default=bd['Status meta'].unique())
     selected_groups = st.sidebar.multiselect('Selecione o(s) tipo(s) de oportunidade:', bd['Tipo de oportunidade'].unique(), default=bd['Tipo de oportunidade'].unique())
     selected_status = st.sidebar.multiselect('Selecione o(s) status:', bd['Status'].unique(), default=bd['Status'].unique())
