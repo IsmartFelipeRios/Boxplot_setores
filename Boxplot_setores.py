@@ -41,7 +41,7 @@ def check_password():
         # Password correct.
         return True
 
-if check_password() == True:
+if check_password():
     st.set_page_config(layout="wide")
 
     # Função para importar a base de dados
