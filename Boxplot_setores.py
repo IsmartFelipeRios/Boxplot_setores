@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 import base64
 import io
+import numpy as np
+import plotly.graph_objects as go
 
 def check_password():
     """Returns `True` if the user had a correct password."""
@@ -157,33 +159,79 @@ if check_password():
     )
 
     pizza2.update_traces(textfont=dict(color='white'))
+ 
+# Criar um boxplot interativo com os dados filtrados usando Plotly
+    # Filtro para identificar os pontos que devem ser destacados
+    pontos_destacados = filtered_data_boxPlot[filtered_data_boxPlot['Top_empresa'] == 'Sim']
+    filtered_data_boxPlot = filtered_data_boxPlot[filtered_data_boxPlot['Top_empresa'] == 'Não']
 
-    # Criar um boxplot interativo com os dados filtrados usando Plotly
-    boxplot = px.box(filtered_data_boxPlot, x="Setor", y="Remuneração", color="Setor", boxmode='overlay', hover_data=["Nome", "Curso", "Universidade", "Tipo de oportunidade", "Organizacao", "Status meta", "Status"], color_discrete_map=cores_setor)
-    boxplot.update_traces(
-        hovertemplate='<b>Setor:</b> %{x}' +
-                        '<br><b>Remuneração:</b> %{y}' +
-                        '<br><b>Nome do aluno:</b> %{customdata[0]}' +
-                        '<br><b>Curso:</b> %{customdata[1]}' +
-                        '<br><b>Universidade:</b> %{customdata[2]}' +
-                        '<br><b>Tipo de oportunidade:</b> %{customdata[3]}'
-                        '<br><b>Organização:</b> %{customdata[4]}'
-                        '<br><b>Status meta:</b> %{customdata[5]}'
-                        '<br><b>Status:</b> %{customdata[6]}'
+    # Crie um boxplot interativo com os dados filtrados usando Plotly
+    boxplot = go.Figure()
+
+    for setor, data in filtered_data_boxPlot.groupby('Setor'):
+        boxplot.add_trace(
+            go.Box(
+                y=data['Remuneração'],
+                name=setor,
+                boxpoints='all',
+                jitter=0.7,
+                pointpos=-2,
+                marker_color=cores_setor[setor],
+                customdata=data[['Nome', 'Curso', 'Universidade', 'Tipo de oportunidade', 'Organizacao', 'Status meta', 'Status']],
+                hovertemplate='<b>Setor:</b> %{x}' +
+                                '<br><b>Remuneração:</b> %{y}' +
+                                '<br><b>Nome do aluno:</b> %{customdata[0]}' +
+                                '<br><b>Curso:</b> %{customdata[1]}' +
+                                '<br><b>Universidade:</b> %{customdata[2]}' +
+                                '<br><b>Tipo de oportunidade:</b> %{customdata[3]}'
+                                '<br><b>Organização:</b> %{customdata[4]}'
+                                '<br><b>Status meta:</b> %{customdata[5]}'
+                                '<br><b>Status:</b> %{customdata[6]}'
+            )
+        )
+
+    # Adicione os pontos destacados ao boxplot
+    boxplot.add_trace(
+        go.Box(
+            y=pontos_destacados['Remuneração'],
+            boxpoints='all',
+            jitter=0.7,
+            pointpos=-2,
+            marker_color='#F2665E',
+            customdata=pontos_destacados[['Nome', 'Curso', 'Universidade', 'Tipo de oportunidade', 'Organizacao', 'Status meta', 'Status']],
+            hovertemplate='<b>Remuneração:</b> %{y}' +
+                            '<br><b>Nome do aluno:</b> %{customdata[0]}' +
+                            '<br><b>Curso:</b> %{customdata[1]}' +
+                            '<br><b>Universidade:</b> %{customdata[2]}' +
+                            '<br><b>Tipo de oportunidade:</b> %{customdata[3]}' +
+                            '<br><b>Organização:</b> %{customdata[4]}' +
+                            '<br><b>Status meta:</b> %{customdata[5]}' +
+                            '<br><b>Status:</b> %{customdata[6]}',
+            name='Top Empresas'  # Defina o nome desejado para a legenda x
+        )
     )
 
-    boxplot.update_traces(boxpoints='all', 
-                            jitter=0.7, 
-                            pointpos=-2, 
-                            boxmean=True,
-                            showlegend=False,
-                            )
-
-    boxplot.update_layout(height=600, xaxis_title='')
+    # Atualize o layout do boxplot
+    boxplot.update_layout(
+        height=600,
+        xaxis_title='',
+        yaxis_title='Remuneração',
+        boxmode='overlay',
+        showlegend=False,
+        yaxis=dict(
+            tickfont=dict(
+                size=16  # Defina o tamanho da fonte desejado
+            )
+        ),
+        xaxis=dict(
+        tickfont=dict(
+            size=16  # Defina o tamanho da fonte desejado
+            )
+        )
+    )
 
     # Defina seus próprios valores para as marcas (ticks) no eixo y
-    boxplot.update_yaxes(tickvals=[1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000], title="Remuneração")
-
+    boxplot.update_yaxes(tickvals=[1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000])
 
 # Filtrar os dados para pegar os anos 2023 e 2024
     meta_counts = filtered_data[filtered_data['Ano_termino'].isin([2023, 2024])]
@@ -227,9 +275,21 @@ if check_password():
 
     # Personalizar o layout do gráfico de barras
     bar_chart_universidades.update_layout(
-    xaxis_title='Universidade',
-    yaxis_title='Quantidade',
-    title=''
+    xaxis_title='',
+    yaxis_title='',
+    title='',
+    xaxis=dict(
+        tickfont=dict(
+            size=16  # Defina o tamanho da fonte desejado
+            )
+        ),
+    height=600
+    )
+
+    bar_chart_universidades.update_traces(
+    texttemplate='%{y}', 
+    textposition='outside',
+    textfont=dict(size=16)  # Defina o tamanho da fonte desejado
     )
 
     bar_chart_universidades.update_traces(texttemplate='%{y}', textposition='outside')
@@ -250,10 +310,21 @@ if check_password():
 
     # Personalizar o layout do gráfico de barras
     bar_chart_cursos.update_layout(
-        xaxis_title='Curso',
-        yaxis_title='Quantidade',
-        title='',
-    )
+    xaxis_title='',
+    yaxis_title='',
+    title='',
+    xaxis=dict(
+        tickfont=dict(
+            size=16  # Defina o tamanho da fonte desejado
+        )
+    ),
+    height=600
+)
+    bar_chart_cursos.update_traces(
+    texttemplate='%{y}', 
+    textposition='outside',
+    textfont=dict(size=16)  # Defina o tamanho da fonte desejado
+)
 
     bar_chart_cursos.update_traces(texttemplate='%{y}', textposition='outside')
     bar_chart_cursos.update_yaxes(showticklabels=False, showgrid=False)
