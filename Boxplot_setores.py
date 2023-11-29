@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import base64
 import io
-import numpy as np
 import plotly.graph_objects as go
 
 def check_password():
