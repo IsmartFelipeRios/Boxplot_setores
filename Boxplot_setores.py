@@ -39,31 +39,30 @@ def check_password():
     else:
         # Password correct.
         return True
+# Função para importar a base de dados
+def importar_base():
+    bd = pd.read_excel('Boxplot_comparativo_entre_os_3_setores.xlsx')
+    return bd
+
+# Função para baixar o DataFrame em formato CSV
+def download_csv():
+    csv = filtered_data.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # Converte para base64
+    href = f"data:file/csv;base64,{b64}"
+    st.markdown(f'<a href="{href}" download="dataframe.csv">Baixar CSV</a>', unsafe_allow_html=True)
+
+# Função para baixar o DataFrame em formato Excel
+def download_excel():
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as excel_writer:
+        filtered_data.to_excel(excel_writer, index=False)
+    excel_binary = output.getvalue()
+    b64 = base64.b64encode(excel_binary).decode()
+    href = f"data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}"
+    st.markdown(f'<a href="{href}" download="dataframe.xlsx">Baixar Excel</a>', unsafe_allow_html=True)
 
 if check_password():
-    st.set_page_config(layout="wide")
-
-    # Função para importar a base de dados
-    def importar_base():
-        bd = pd.read_excel('Boxplot_comparativo_entre_os_3_setores.xlsx')
-        return bd
-
-    # Função para baixar o DataFrame em formato CSV
-    def download_csv():
-        csv = filtered_data.to_csv(index=False)
-        b64 = base64.b64encode(csv.encode()).decode()  # Converte para base64
-        href = f"data:file/csv;base64,{b64}"
-        st.markdown(f'<a href="{href}" download="dataframe.csv">Baixar CSV</a>', unsafe_allow_html=True)
-
-    # Função para baixar o DataFrame em formato Excel
-    def download_excel():
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as excel_writer:
-            filtered_data.to_excel(excel_writer, index=False)
-        excel_binary = output.getvalue()
-        b64 = base64.b64encode(excel_binary).decode()
-        href = f"data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}"
-        st.markdown(f'<a href="{href}" download="dataframe.xlsx">Baixar Excel</a>', unsafe_allow_html=True)
+        st.set_page_config(layout="wide")
 
     # Carregue a base de dados
     bd = importar_base()
@@ -125,20 +124,20 @@ if check_password():
     # Criar um gráfico de pizza
     pizza = px.pie(setor_counts, names='Setor', values='Quantidade')
     pizza.update_traces(marker=dict(colors=[cores_setor[setor] for setor in setor_counts['Setor']]))
+    pizza.update_traces(textfont=dict(color='white'))
+
 
     # Personalizar o layout do gráfico de pizza
     pizza.update_layout(
         showlegend=True,  # Mostrar legendaa
         legend=dict(  # Personalizar a legenda
             title='',  # Título da legenda
-            font=dict(size=18),  # Tamanho da fonte da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
         ),
         font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
         height=400,  # Defina a altura desejada
-    )
+    )   
 
-    pizza.update_traces(textfont=dict(color='white'))
-    
     # Contagem de ocorrências de cada setor
     setor_counts = filtered_data['Turno'].value_counts().reset_index()
     setor_counts.columns = ['Turno', 'Quantidade']
@@ -151,7 +150,7 @@ if check_password():
         showlegend=True,  # Mostrar legenda
         legend=dict(  # Personalizar a legenda
             title='',  # Título da legenda
-            font=dict(size=18),  # Tamanho da fonte da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
         ),
         font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
         height=400,  # Defina a altura desejada
@@ -251,7 +250,7 @@ if check_password():
         showlegend=True,  # Mostrar legenda
         legend=dict(  # Personalizar a legenda
             title='',  # Título da legenda
-            font=dict(size=18),  # Tamanho da fonte da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
         ),
         font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
         height=400,  # Defina a altura desejada
@@ -352,15 +351,22 @@ if check_password():
 
     # Personalizar o layout do gráfico de pizza
     pie_chart_cidades.update_layout(
-        showlegend=True,  # Mostrar legenda
-        legend=dict(  # Personalizar a legenda
-            title='',  # Título da legenda
-            font=dict(size=18),  # Tamanho da fonte da legenda
+        showlegend=True,
+        legend=dict(
+            title='',
+            font=dict(size=22, color="Gray"),
         ),
-        font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
-        height=400,  # Defina a altura desejada
+        font=dict(size=20, color='white'),
+        height=400,
     )
-    
+
+    # Personalizar as porcentagens
+    pie_chart_cidades.update_traces(
+        textposition='inside',
+        textinfo='percent',
+        insidetextfont=dict(color='white', size=20),  # Defina o tamanho e a cor da fonte interna
+    )
+   
 # Criar um DataFrame com a contagem de ocorrências de Gênero
     genero_counts = filtered_data['Gênero'].value_counts().reset_index()
     genero_counts.columns = ['Gênero', 'Quantidade']
@@ -388,7 +394,7 @@ if check_password():
         showlegend=True,  # Mostrar legenda
         legend=dict(  # Personalizar a legenda
             title='',  # Título da legenda
-            font=dict(size=18),  # Tamanho da fonte da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
         ),
         font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
         height=400,  # Defina a altura desejada
@@ -406,7 +412,7 @@ if check_password():
         showlegend=True,  # Mostrar legenda
         legend=dict(  # Personalizar a legenda
             title='',  # Título da legenda
-            font=dict(size=18),  # Tamanho da fonte da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
         ),
         font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
         height=400,  # Defina a altura desejada
@@ -450,7 +456,7 @@ if check_password():
         with col2:
             st.title('Alunos da meta')
             st.plotly_chart(pizza3, use_container_width=True)
-        
+
         with col1:
             # Exibir o primeiro gráfico de pizza
             st.title('alunos por setor')
