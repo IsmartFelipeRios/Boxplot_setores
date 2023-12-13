@@ -40,31 +40,30 @@ def check_password():
         # Password correct.
         return True
 
+# Função para importar a base de dados
+def importar_base():
+    bd = pd.read_excel('Boxplot_comparativo_entre_os_3_setores.xlsx')
+    return bd
+
+# Função para baixar o DataFrame em formato CSV
+def download_csv():
+    csv = filtered_data.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # Converte para base64
+    href = f"data:file/csv;base64,{b64}"
+    st.markdown(f'<a href="{href}" download="dataframe.csv">Baixar CSV</a>', unsafe_allow_html=True)
+
+# Função para baixar o DataFrame em formato Excel
+def download_excel():
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as excel_writer:
+        filtered_data.to_excel(excel_writer, index=False)
+    excel_binary = output.getvalue()
+    b64 = base64.b64encode(excel_binary).decode()
+    href = f"data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}"
+    st.markdown(f'<a href="{href}" download="dataframe.xlsx">Baixar Excel</a>', unsafe_allow_html=True)
+
 if check_password():
-        st.set_page_config(layout="wide")
-
-    # Função para importar a base de dados
-    def importar_base():
-        bd = pd.read_excel('Boxplot_comparativo_entre_os_3_setores.xlsx')
-        return bd
-    
-    # Função para baixar o DataFrame em formato CSV
-    def download_csv():
-        csv = filtered_data.to_csv(index=False)
-        b64 = base64.b64encode(csv.encode()).decode()  # Converte para base64
-        href = f"data:file/csv;base64,{b64}"
-        st.markdown(f'<a href="{href}" download="dataframe.csv">Baixar CSV</a>', unsafe_allow_html=True)
-
-    # Função para baixar o DataFrame em formato Excel
-    def download_excel():
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as excel_writer:
-            filtered_data.to_excel(excel_writer, index=False)
-        excel_binary = output.getvalue()
-        b64 = base64.b64encode(excel_binary).decode()
-        href = f"data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}"
-        st.markdown(f'<a href="{href}" download="dataframe.xlsx">Baixar Excel</a>', unsafe_allow_html=True)
-
+    st.set_page_config(layout="wide")
 
     # Carregue a base de dados
     bd = importar_base()
