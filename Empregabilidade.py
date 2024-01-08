@@ -63,7 +63,7 @@ def download_excel():
     st.markdown(f'<a href="{href}" download="dataframe.xlsx">Baixar Excel</a>', unsafe_allow_html=True)
 
 if check_password():
-    st.set_page_config(layout="wide")
+st.set_page_config(layout="wide")
 
     # Carregue a base de dados
     bd = importar_base()
@@ -83,8 +83,36 @@ if check_password():
     aluno_meta = st.sidebar.radio('Selecione a opção de meta:', ['Estão na meta', 'Não estão na meta', 'Ambas'], index=2)
     ano_termino = st.sidebar.radio('Selecione o ano de término:', ['Alunos que estão no último ano', 'Alunos que estão no penúltimo ano', 'Todos os anos'], index=2)
     oportunidade = st.sidebar.multiselect('Selecione a opção de status da oportunidade:', bd['Status meta'].unique(), default=bd['Status meta'].unique())
-    selected_groups = st.sidebar.multiselect('Selecione o(s) tipo(s) de oportunidade:', bd['Tipo de oportunidade'].unique(), default=bd['Tipo de oportunidade'].unique())
-    selected_status = st.sidebar.multiselect('Selecione o(s) status:', bd['Status'].unique(), default=bd['Status'].unique())
+
+    # Define todas as opções possíveis para o filtro de tipos de oportunidade
+    todas_opcoes = bd['Tipo de oportunidade'].unique()
+
+    # Inicializa selected_groups com todas as opções
+    selected_groups = todas_opcoes
+
+    # Cria um espaço reservado para o filtro selected_groups
+    placeholder_selected_groups = st.sidebar.empty()
+
+    # Condição para mostrar ou "ocultar" o filtro selected_groups
+    if "Oportunidade Não Validada" in oportunidade or "Oportunidade Validada" in oportunidade:
+        # Mostra o filtro e atualiza selected_groups com a seleção do usuário
+        selected_groups = placeholder_selected_groups.multiselect(
+            'Selecione o(s) tipo(s) de oportunidade:', 
+            todas_opcoes, 
+            default=todas_opcoes
+        )
+    else:
+        # "Oculta" o filtro mantendo selected_groups com todas as opções
+        placeholder_selected_groups.empty()
+        selected_groups = todas_opcoes
+
+    # Continuação dos filtros
+    if aluno_meta != 'Estão na meta':
+        selected_status = st.sidebar.multiselect('Selecione o(s) status:', bd['Status'].unique(), default=bd['Status'].unique())
+    else:
+        status_options = [status for status in bd['Status'].unique() if status not in ["FORMADO", "TRANCAMENTO", "DESLIGADO"]]
+        selected_status = st.sidebar.multiselect('Selecione o(s) status:', status_options, default=status_options)
+
 
     # Aplicar filtro com base na opção do aluno_meta
     if aluno_meta == 'Estão na meta':
@@ -328,7 +356,39 @@ if check_password():
     bar_chart_cursos.update_traces(texttemplate='%{y}', textposition='outside')
     bar_chart_cursos.update_yaxes(showticklabels=False, showgrid=False)
 
-# Criar um DataFrame com a contagem de ocorrências das cidades
+    # Contagem de ocorrências de cada cidade
+    cidades_counts = filtered_data['Cidade'].value_counts().reset_index()
+    cidades_counts.columns = ['Cidade', 'Quantidade']
+
+    # Classificar as cidades em ordem decrescente de contagem
+    cidades_counts = cidades_counts.sort_values(by='Quantidade', ascending=False)
+
+    # Selecionar as 10 principais cidades
+    top_10_cidades = cidades_counts.head(10)
+
+    # Criar o gráfico de barras
+    bar_chart_cidades = px.bar(top_10_cidades, x='Cidade', y='Quantidade', color_discrete_sequence=['#002561'])
+
+    # Personalizar o layout do gráfico de barras
+    bar_chart_cidades.update_layout(
+        xaxis_title='',  # Defina o título do eixo X, se necessário
+        yaxis_title='',  # Defina o título do eixo Y, se necessário
+        title='',  # Defina o título principal, se necessário
+        xaxis=dict(tickfont=dict(size=16)),  # Tamanho da fonte do eixo X
+        height=600  # Altura do gráfico
+    )
+
+    # Atualizar traces para exibir valores fora das barras
+    bar_chart_cidades.update_traces(
+        texttemplate='%{y}', 
+        textposition='outside',
+        textfont=dict(size=16)  # Tamanho da fonte dos valores
+    )
+
+    # Ocultar as etiquetas do eixo Y e a grade
+    bar_chart_cidades.update_yaxes(showticklabels=False, showgrid=False)
+
+    # Criar um DataFrame com a contagem de ocorrências das cidades
     cidade_counts = filtered_data['Cidade'].value_counts().reset_index()
     cidade_counts.columns = ['Cidade', 'Quantidade']
 
@@ -367,7 +427,15 @@ if check_password():
         textinfo='percent',
         insidetextfont=dict(color='white', size=20),  # Defina o tamanho e a cor da fonte interna
     )
+
+    # Personalizar as porcentagens
+    pie_chart_cidades.update_traces(
+        textposition='inside',
+        textinfo='percent',
+        insidetextfont=dict(color='white', size=20),  # Defina o tamanho e a cor da fonte interna
+    )
    
+
 # Criar um DataFrame com a contagem de ocorrências de Gênero
     genero_counts = filtered_data['Gênero'].value_counts().reset_index()
     genero_counts.columns = ['Gênero', 'Quantidade']
@@ -400,6 +468,46 @@ if check_password():
         font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
         height=400,  # Defina a altura desejada
     )
+
+# Contagem de ocorrências de cada raça
+    status_conts = filtered_data['Status meta'].value_counts().reset_index()
+    status_conts.columns = ['Status meta', 'Quantidade']
+
+    # Criar um gráfico de pizza
+    pie_chart_status = px.pie(status_conts, names='Status meta', values='Quantidade', color_discrete_sequence=['#002561', '#008ED4', '#00BDF2'])
+
+    # Personalizar o layout do gráfico de pizza
+    pie_chart_status.update_layout(
+        showlegend=True,  # Mostrar legenda
+        legend=dict(  # Personalizar a legenda
+            title='',  # Título da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
+        ),
+        font=dict(size=20, color='white'),  # Tamanho da fonte do gráfico
+        height=400,  # Defina a altura desejada
+    )
+
+    pie_chart_status.update_traces(textfont=dict(color='white'))
+
+# Contagem de ocorrências de cada raça
+    cursoapoiado_conts = filtered_data['Curso apoiado?'].value_counts().reset_index()
+    cursoapoiado_conts.columns = ['Curso apoiado?', 'Quantidade']
+
+    # Criar um gráfico de pizza
+    pie_chart_cursoapoiado = px.pie(cursoapoiado_conts, names='Curso apoiado?', values='Quantidade', color_discrete_sequence=['#002561', '#008ED4', '#00BDF2'])
+
+    # Personalizar o layout do gráfico de pizza
+    pie_chart_cursoapoiado.update_layout(
+        showlegend=True,  # Mostrar legenda
+        legend=dict(  # Personalizar a legenda
+            title='',  # Título da legenda
+            font=dict(size=22, color="Gray"),  # Tamanho da fonte da legenda
+        ),
+        font=dict(size=20, color='white'),  # Tamanho da fonte do gráfica
+        height=400,  # Defina a altura desejada
+    )
+
+    pie_chart_cursoapoiado.update_traces(textfont=dict(color='white'))
 
     # Contagem de ocorrências de cada raça
     raca_counts = filtered_data['Raça'].value_counts().reset_index()
@@ -438,7 +546,7 @@ if check_password():
         with col2:
             download_excel()
         with col6:
-            st.markdown('**08/11/2023**')
+            st.markdown('**05/01/2024**')
 
     else:
         # Exibir o boxplot no topo
@@ -468,12 +576,15 @@ if check_password():
             st.plotly_chart(pie_chart_cidades, use_container_width=True)
 
         # Exibir o primeiro gráfico de barras 
-        st.title('Top universidades (Quantidade de alunos)')
+        st.title('Top Universidades (Quantidade de alunos)')
         st.plotly_chart(bar_chart_universidades, use_container_width=True)
 
         # Exibir o segundo gráfico de barras
         st.title('Top Cursos (Quantidade de alunos)')
         st.plotly_chart(bar_chart_cursos, use_container_width=True)
+
+        st.title('Top Cidades (Quantidade de alunos)')
+        st.plotly_chart(bar_chart_cidades, use_container_width=True) 
 
         with col1:
             st.title('Gêneros')
@@ -482,3 +593,12 @@ if check_password():
         with col2:
             st.title('Raça')
             st.plotly_chart(pizza_raca , use_container_width=True)
+        
+        with col1:
+            st.title('Status meta')
+            st.plotly_chart(pie_chart_status , use_container_width=True)
+
+        with col2:
+            st.title('Curso apoiado?')
+            st.plotly_chart(pie_chart_cursoapoiado , use_container_width=True)
+            
