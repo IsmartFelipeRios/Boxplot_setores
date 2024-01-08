@@ -42,7 +42,7 @@ def check_password():
 
 # Função para importar a base de dados
 def importar_base():
-    bd = pd.read_excel('Boxplot_comparativo_entre_os_3_setores.xlsx')
+    bd = pd.read_excel('BD_empregabilidade.xlsx')
     return bd
 
 # Função para baixar o DataFrame em formato CSV
