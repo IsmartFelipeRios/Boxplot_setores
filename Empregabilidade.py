@@ -63,7 +63,7 @@ def download_excel():
     st.markdown(f'<a href="{href}" download="dataframe.xlsx">Baixar Excel</a>', unsafe_allow_html=True)
 
 if check_password():
-st.set_page_config(layout="wide")
+    st.set_page_config(layout="wide")
 
     # Carregue a base de dados
     bd = importar_base()
