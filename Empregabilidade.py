@@ -106,13 +106,7 @@ if check_password():
         placeholder_selected_groups.empty()
         selected_groups = todas_opcoes
 
-    # Continuação dos filtros
-    if aluno_meta != 'Estão na meta':
-        selected_status = st.sidebar.multiselect('Selecione o(s) status:', bd['Status'].unique(), default=bd['Status'].unique())
-    else:
-        status_options = [status for status in bd['Status'].unique() if status not in ["FORMADO", "TRANCAMENTO", "DESLIGADO"]]
-        selected_status = st.sidebar.multiselect('Selecione o(s) status:', status_options, default=status_options)
-
+    selected_status = st.sidebar.multiselect('Selecione o(s) status:', bd['Status'].unique(), default=bd['Status'].unique())
 
     # Aplicar filtro com base na opção do aluno_meta
     if aluno_meta == 'Estão na meta':
