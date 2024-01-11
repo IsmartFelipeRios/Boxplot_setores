@@ -72,10 +72,9 @@ if check_password():
     # Título
     st.title('Análise empregabilidade')
 
-    # Título lateral
+    # Título e configurações da barra lateral
+    st.title('Análise de Empregabilidade')
     st.sidebar.title('O que deseja ver?')
-
-    # Filtro do que aparece na página
     pagina = st.sidebar.radio('Selecione o que deseja ver:', ['Gráfico', 'Dataframe'], index=0)
     st.sidebar.title('Filtros')
 
@@ -83,36 +82,13 @@ if check_password():
     aluno_meta = st.sidebar.radio('Selecione a opção de meta:', ['Estão na meta', 'Não estão na meta', 'Ambas'], index=2)
     ano_termino = st.sidebar.radio('Selecione o ano de término:', ['Alunos que estão no último ano', 'Alunos que estão no penúltimo ano', 'Todos os anos'], index=2)
     oportunidade = st.sidebar.multiselect('Selecione a opção de status da oportunidade:', bd['Status meta'].unique(), default=bd['Status meta'].unique())
+    selected_groups = st.sidebar.multiselect('Selecione o(s) tipo(s) de oportunidade:', bd['Tipo de oportunidade'].unique(), default=bd['Tipo de oportunidade'].unique())
 
-    # Define todas as opções possíveis para o filtro de tipos de oportunidade
-    todas_opcoes = bd['Tipo de oportunidade'].unique()
-
-    # Inicializa selected_groups com todas as opções
-    selected_groups = todas_opcoes
-
-    # Cria um espaço reservado para o filtro selected_groups
-    placeholder_selected_groups = st.sidebar.empty()
-
-    # Condição para mostrar ou "ocultar" o filtro selected_groups
-    if "Oportunidade Não Validada" in oportunidade or "Oportunidade Validada" in oportunidade:
-        # Mostra o filtro e atualiza selected_groups com a seleção do usuário
-        selected_groups = placeholder_selected_groups.multiselect(
-            'Selecione o(s) tipo(s) de oportunidade:', 
-            todas_opcoes, 
-            default=todas_opcoes
-        )
-    else:
-        # "Oculta" o filtro mantendo selected_groups com todas as opções
-        placeholder_selected_groups.empty()
-        selected_groups = todas_opcoes
-
-    # Continuação dos filtros
     if aluno_meta != 'Estão na meta':
         selected_status = st.sidebar.multiselect('Selecione o(s) status:', bd['Status'].unique(), default=bd['Status'].unique())
     else:
         status_options = [status for status in bd['Status'].unique() if status not in ["FORMADO", "TRANCAMENTO", "DESLIGADO"]]
         selected_status = st.sidebar.multiselect('Selecione o(s) status:', status_options, default=status_options)
-
 
     # Aplicar filtro com base na opção do aluno_meta
     if aluno_meta == 'Estão na meta':
